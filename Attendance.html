@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Absensi App</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --blue:    #2563EB;
+  --blue-lt: #EFF6FF;
+  --blue-md: #BFDBFE;
+  --green:   #16A34A;
+  --green-lt:#DCFCE7;
+  --green-dk:#15803D;
+  --red:     #B91C1C;
+  --red-btn: #991B1B;
+  --red-lt:  #FEF2F2;
+  --gray1:   #F9FAFB;
+  --gray2:   #F3F4F6;
+  --gray3:   #E5E7EB;
+  --gray4:   #9CA3AF;
+  --gray5:   #6B7280;
+  --gray6:   #4B5563;
+  --ink:     #111827;
+  --map-bg:  #BFDBFE;
+  --map-grid:#93C5FD;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  height:100%;
+  background:#E5E7EB;
+  font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+}
+
+/* ── device shell ── */
+.device{
+  width:375px;
+  background:#111;
+  border-radius:52px;
+  padding:13px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.1),
+    0 32px 80px rgba(0,0,0,.4),
+    0 8px 20px rgba(0,0,0,.25);
+}
+.notch{
+  width:110px;height:28px;
+  background:#111;border-radius:14px;
+  margin:0 auto 8px;
+}
+.screen{
+  background:#fff;
+  border-radius:40px;
+  overflow:hidden;
+  height:748px;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+/* ── status bar ── */
+.sbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 22px 6px;
+  font-size:12px;font-weight:600;
+  color:var(--ink);
+  background:#fff;
+  flex-shrink:0;
+}
+.sbar-icons{display:flex;gap:5px;align-items:center;}
+
+/* ── pages ── */
+.page{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.page.active{display:flex;}
+
+/* ── scrollable body ── */
+.body{
+  flex:1;overflow-y:auto;
+  padding:16px 20px;
+  display:flex;flex-direction:column;gap:14px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.body::-webkit-scrollbar{display:none;}
+
+/* ── header ── */
+.hdr{
+  padding:12px 20px 14px;
+  border-bottom:1px solid var(--gray3);
+  flex-shrink:0;background:#fff;
+}
+.hdr h1{font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.4px;}
+.hdr .hdr-sub{font-size:12px;color:var(--gray5);margin-top:2px;}
+.hdr-row{display:flex;align-items:center;gap:10px;}
+.back-btn{
+  border:none;background:none;cursor:pointer;
+  color:var(--ink);padding:0;
+  display:flex;align-items:center;
+}
+
+/* ── card ── */
+.card{
+  background:#fff;
+  border-radius:16px;
+  border:1px solid var(--gray3);
+  padding:16px;
+}
+.card-gray{
+  background:var(--gray1);
+  border-radius:16px;
+  border:1px solid var(--gray3);
+  padding:16px;
+}
+
+/* ── employee row ── */
+.emp-row{display:flex;align-items:center;gap:12px;}
+.avatar{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;flex-shrink:0;
+}
+.av-blue{background:var(--blue-lt);color:var(--blue);}
+.av-green{background:var(--green-lt);color:var(--green-dk);}
+.emp-name{font-size:14px;font-weight:600;color:var(--ink);}
+.emp-role{font-size:12px;color:var(--gray5);margin-top:1px;}
+
+/* ── badge ── */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:20px;
+}
+.b-out{background:var(--red-lt);color:var(--red);}
+.b-in {background:var(--green-lt);color:var(--green-dk);}
+.bdot{width:6px;height:6px;border-radius:50%;}
+.b-out .bdot{background:var(--red);}
+.b-in  .bdot{background:var(--green);}
+
+/* ── clock ── */
+.clock-wrap{text-align:center;padding:14px 0 8px;}
+.clock-time{
+  font-size:56px;font-weight:700;color:var(--ink);
+  letter-spacing:-3px;line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.clock-sub{font-size:13px;color:var(--gray4);margin-top:8px;}
+.clock-sess{font-size:12px;font-weight:500;color:var(--blue);margin-top:4px;display:none;}
+
+/* ── buttons ── */
+.btn{
+  width:100%;padding:16px;border-radius:14px;border:none;
+  font-family:'Inter',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:9px;transition:opacity .15s,transform .1s;
+  letter-spacing:-.1px;
+}
+.btn:active{opacity:.88;transform:scale(.99);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-red  {background:var(--red-btn);color:#fff;}
+.btn-blue {background:var(--blue);color:#fff;}
+.btn-dis  {
+  background:var(--gray2);color:var(--gray4);
+  border:1px solid var(--gray3);cursor:not-allowed;
+}
+
+/* ── section label ── */
+.sec-lbl{
+  font-size:10px;font-weight:700;color:var(--gray4);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.divider{height:1px;background:var(--gray3);}
+.note{font-size:11px;color:var(--gray4);text-align:center;}
+
+/* ── selfie zone ── */
+.selfie-zone{
+  background:var(--gray1);border-radius:16px;
+  border:1px solid var(--gray3);
+  height:164px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;position:relative;
+  transition:background .15s;
+}
+.selfie-zone:hover{background:var(--gray2);}
+.selfie-circle{
+  width:74px;height:74px;border-radius:50%;
+  background:var(--blue-lt);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.selfie-circle img{
+  width:100%;height:100%;object-fit:cover;
+  border-radius:50%;display:none;
+}
+.selfie-lbl{font-size:12px;color:var(--gray4);font-weight:500;}
+.selfie-req{
+  position:absolute;top:10px;right:12px;
+  font-size:10px;font-weight:700;color:var(--red);
+  background:var(--red-lt);padding:3px 8px;border-radius:6px;
+  letter-spacing:.02em;
+}
+
+/* ── alert ── */
+.alert{
+  border-radius:10px;padding:12px 14px;
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:12px;line-height:1.5;font-weight:500;
+}
+.a-warn{background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;}
+.a-ok  {background:var(--green-lt);color:var(--green-dk);border:1px solid #86EFAC;}
+.alert-ico{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+
+/* ── map ── */
+.map-box{
+  width:100%;height:100px;
+  background:var(--map-bg);border-radius:12px;
+  border:1px solid var(--map-grid);
+  position:relative;overflow:hidden;
+}
+.map-grid-h{position:absolute;width:100%;height:1px;background:var(--map-grid);opacity:.5;}
+.map-grid-v{position:absolute;height:100%;width:1px;background:var(--map-grid);opacity:.5;}
+.map-pin{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--blue);border:2.5px solid #fff;
+  position:absolute;transform:translate(-50%,-50%);
+  box-shadow:0 2px 6px rgba(37,99,235,.4);
+}
+.map-office{
+  width:12px;height:12px;border-radius:3px;
+  background:var(--green);border:2px solid #fff;
+  position:absolute;transform:translate(-50%,-50%);
+  top:44%;left:55%;
+  box-shadow:0 2px 6px rgba(22,163,74,.4);
+}
+.geo-row{display:flex;justify-content:space-between;align-items:center;}
+.geo-lbl{font-size:12px;color:var(--gray5);display:flex;align-items:center;gap:5px;}
+.geo-val{font-size:12px;font-weight:600;}
+.near{color:var(--green-dk);}
+.far {color:var(--red);}
+
+/* ── duration ── */
+.dur-wrap{text-align:center;padding:22px 14px 16px;}
+.dur-lbl{font-size:11px;font-weight:600;color:var(--gray4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.dur-big{
+  font-size:60px;font-weight:800;color:var(--blue);
+  letter-spacing:-3px;line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.dur-since{font-size:12px;color:var(--gray4);margin-top:10px;}
+
+/* ── split card ── */
+.split-card{display:flex;align-items:stretch;}
+.split-col{flex:1;text-align:center;padding:14px 0;}
+.split-sep{width:1px;background:var(--gray3);align-self:stretch;margin:8px 0;}
+.split-lbl{font-size:11px;color:var(--gray4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-weight:500;}
+.split-val{
+  font-size:24px;font-weight:700;color:var(--ink);
+  letter-spacing:-1px;font-variant-numeric:tabular-nums;
+}
+
+/* ── history ── */
+.hitem{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--gray3);
+}
+.hitem:last-child{border-bottom:none;}
+.hitem-date{font-size:13px;font-weight:600;color:var(--ink);}
+.hitem-sub{font-size:11px;color:var(--gray4);margin-top:2px;line-height:1.5;}
+.hitem-rt{margin-left:auto;text-align:right;flex-shrink:0;}
+.dpill{
+  display:inline-block;font-size:10px;font-weight:700;
+  background:var(--green-lt);color:var(--green-dk);
+  padding:3px 10px;border-radius:10px;
+}
+.spill{
+  display:inline-block;font-size:10px;font-weight:500;
+  background:var(--blue-lt);color:var(--blue);
+  padding:2px 7px;border-radius:8px;margin-top:3px;
+}
+
+/* ── stats ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat{
+  background:var(--gray1);border-radius:14px;
+  border:1px solid var(--gray3);padding:14px;
+}
+.stat-key{font-size:10px;font-weight:700;color:var(--gray4);text-transform:uppercase;letter-spacing:.06em;}
+.stat-val{font-size:26px;font-weight:700;color:var(--ink);margin-top:6px;letter-spacing:-1px;}
+
+/* ── bottom nav ── */
+.nav{
+  display:flex;border-top:1px solid var(--gray3);
+  background:#fff;flex-shrink:0;padding:6px 0 10px;
+}
+.ntab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:6px 0;font-size:10px;font-weight:500;
+  border:none;background:none;cursor:pointer;
+  color:var(--gray4);font-family:'Inter',sans-serif;
+  transition:color .15s;
+}
+.ntab svg{width:22px;height:22px;}
+.ntab.on{color:var(--blue);}
+
+/* ── LOGIN styles ── */
+.login-wrap{
+  flex:1;display:flex;flex-direction:column;
+  padding:0 24px 24px;overflow-y:auto;
+}
+.login-brand{
+  display:flex;flex-direction:column;align-items:center;
+  padding:40px 0 28px;
+}
+.login-logo{
+  width:64px;height:64px;border-radius:20px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:18px;
+  box-shadow:0 8px 24px rgba(37,99,235,.3);
+}
+.login-title{font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.4px;}
+.login-sub{font-size:13px;color:var(--gray5);margin-top:5px;}
+.login-form{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
+.inp-grp{display:flex;flex-direction:column;gap:6px;}
+.inp-lbl{font-size:12px;font-weight:600;color:var(--gray6);}
+.inp-wrap{position:relative;}
+.inp-wrap > svg{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;color:var(--gray4);pointer-events:none;
+}
+.inp{
+  width:100%;padding:13px 14px 13px 42px;
+  border-radius:12px;border:1.5px solid var(--gray3);
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);
+  background:var(--gray1);outline:none;
+  transition:border-color .15s,background .15s;
+}
+.inp:focus{border-color:var(--blue);background:#fff;}
+.inp::placeholder{color:var(--gray4);}
+.inp-eye{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  border:none;background:none;cursor:pointer;
+  color:var(--gray4);padding:0;display:flex;align-items:center;
+}
+.login-forgot{
+  text-align:right;font-size:12px;color:var(--blue);font-weight:600;
+  cursor:pointer;margin-top:-6px;background:none;border:none;
+  font-family:'Inter',sans-serif;
+}
+.login-err{
+  background:var(--red-lt);color:var(--red);border-radius:10px;
+  padding:11px 14px;font-size:12px;display:none;
+  align-items:center;gap:8px;margin-bottom:4px;
+  font-weight:500;border:1px solid #FECACA;
+}
+.login-divider{
+  display:flex;align-items:center;gap:10px;
+  margin:4px 0 14px;
+}
+.login-divider span{font-size:11px;color:var(--gray4);white-space:nowrap;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--gray3);}
+.sso-btn{
+  width:100%;padding:13px;border-radius:12px;
+  border:1.5px solid var(--gray3);background:#fff;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  color:var(--ink);cursor:pointer;transition:background .15s;
+}
+.sso-btn:hover{background:var(--gray1);}
+.login-footer{
+  text-align:center;font-size:11px;color:var(--gray4);
+  margin-top:auto;padding-top:20px;line-height:1.6;
+}
+
+/* ── animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.page.active .body > *{animation:fadeUp .2s ease both;}
+.page.active .body > *:nth-child(1){animation-delay:.03s}
+.page.active .body > *:nth-child(2){animation-delay:.07s}
+.page.active .body > *:nth-child(3){animation-delay:.11s}
+.page.active .body > *:nth-child(4){animation-delay:.15s}
+.page.active .body > *:nth-child(5){animation-delay:.19s}
+.page.active .body > *:nth-child(6){animation-delay:.23s}
+
+input[type=file]{display:none;}
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="notch"></div>
+  <div class="screen">
+
+    <!-- ── STATUS BAR ── -->
+    <div class="sbar" id="main-sbar" style="display:none;">
+      <span id="sbar-time">08:00</span>
+      <div class="sbar-icons">
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="5" width="3" height="6" rx="1" fill="currentColor" opacity=".3"/><rect x="4" y="3" width="3" height="8" rx="1" fill="currentColor" opacity=".5"/><rect x="8" y="1" width="3" height="10" rx="1" fill="currentColor" opacity=".75"/><rect x="12" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" stroke-opacity=".3"/><rect x="1.5" y="1.5" width="16" height="9" rx="2" fill="currentColor"/><path d="M22 4v4a2 2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         PAGE: LOGIN
+    ════════════════════════════════ -->
+    <div class="page active" id="page-login">
+      <div class="sbar">
+        <span id="t-login">08:00</span>
+        <div class="sbar-icons">
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="5" width="3" height="6" rx="1" fill="currentColor" opacity=".3"/><rect x="4" y="3" width="3" height="8" rx="1" fill="currentColor" opacity=".5"/><rect x="8" y="1" width="3" height="10" rx="1" fill="currentColor" opacity=".75"/><rect x="12" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" stroke-opacity=".3"/><rect x="1.5" y="1.5" width="16" height="9" rx="2" fill="currentColor"/><path d="M22 4v4a2 2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+        </div>
+      </div>
+      <div class="login-wrap">
+        <div class="login-brand">
+          <div class="login-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="login-title">Selamat Datang</div>
+          <div class="login-sub">Masuk ke akun absensi kamu</div>
+        </div>
+
+        <div id="login-err" class="login-err">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="err-msg">Email atau password salah.</span>
+        </div>
+
+        <div class="login-form">
+          <div class="inp-grp">
+            <label class="inp-lbl" for="inp-email">Email</label>
+            <div class="inp-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input class="inp" id="inp-email" type="email" placeholder="nama@perusahaan.com" autocomplete="email"/>
+            </div>
+          </div>
+          <div class="inp-grp">
+            <label class="inp-lbl" for="inp-pass">Password</label>
+            <div class="inp-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input class="inp" id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+              <button class="inp-eye" onclick="togglePass()" type="button" aria-label="Toggle password">
+                <svg id="eye-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <button class="login-forgot" onclick="forgotPass()">Lupa password?</button>
+          <button class="btn btn-blue" onclick="doLogin()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            → Masuk
+          </button>
+        </div>
+
+        <div class="login-divider"><span>atau masuk dengan</span></div>
+        <button class="sso-btn" onclick="doSSO()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Lanjutkan dengan Google
+        </button>
+        <div class="login-footer">Dengan masuk, kamu setuju dengan<br/><span style="color:var(--blue);cursor:pointer">Syarat &amp; Ketentuan</span> dan <span style="color:var(--blue);cursor:pointer">Kebijakan Privasi</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         PAGE: LANDING
+    ════════════════════════════════ -->
+    <div class="page" id="page-landing">
+      <div class="hdr">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <h1>Absensi</h1>
+            <div class="hdr-sub" id="l-date">Kamis, 21 Mei 2026</div>
+          </div>
+          <button onclick="doLogout()" style="border:none;background:none;cursor:pointer;color:var(--gray4);padding:4px;margin-top:2px;" title="Keluar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="body">
+
+        <!-- employee card -->
+        <div class="card">
+          <div class="emp-row">
+            <div class="avatar av-blue" id="l-av">FR</div>
+            <div style="flex:1;">
+              <div class="emp-name" id="l-name">Bahrul Ulum</div>
+              <div class="emp-role" id="l-role">IT Staff</div>
+            </div>
+            <span class="badge b-out" id="l-badge">
+              <span class="bdot"></span>
+              <span id="l-stxt">Out</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- clock -->
+        <div class="card">
+          <div class="clock-wrap">
+            <div class="clock-time" id="l-clock">08.00</div>
+            <div class="clock-sub">Waktu Sekarang</div>
+            <div class="clock-sess" id="l-sess"></div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button class="btn btn-green" id="l-btn" onclick="landBtn()">
+          <svg id="l-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          <span id="l-btxt">→ Clock In</span>
+        </button>
+
+        <div class="divider"></div>
+        <div class="sec-lbl">Hari Ini</div>
+        <div id="l-today">
+          <div style="font-size:13px;color:var(--gray4);text-align:center;padding:6px 0;">Belum ada absensi hari ini</div>
+        </div>
+
+      </div>
+      <div class="nav">
+        <button class="ntab on" onclick="goPage('landing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home
+        </button>
+        <button class="ntab" onclick="goPage('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         PAGE: CLOCK IN — Step 1 (Selfie)
+    ════════════════════════════════ -->
+    <div class="page" id="page-clockin">
+      <div class="hdr">
+        <div class="hdr-row">
+          <button class="back-btn" onclick="goPage('landing')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div>
+            <h1>Clock In</h1>
+            <div class="hdr-sub" id="ci-step">Langkah 1 – Ambil Selfie</div>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+
+        <div class="sec-lbl">Selfie</div>
+
+        <!-- selfie zone -->
+        <div class="selfie-zone" id="ci-zone" onclick="document.getElementById('ci-file').click()">
+          <div class="selfie-circle" id="ci-circle">
+            <svg id="ci-camsvg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <img id="ci-img" alt="selfie"/>
+          </div>
+          <div class="selfie-lbl" id="ci-lbl">Tap untuk membuka kamera</div>
+          <span class="selfie-req" id="ci-req">Wajib</span>
+        </div>
+        <input type="file" id="ci-file" accept="image/*" capture="user" onchange="onSelfie(event)"/>
+
+        <div id="ci-ok" class="alert a-ok" style="display:none;">
+          <svg class="alert-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Selfie berhasil diambil. Lanjut Konfirmasi.
+        </div>
+
+        <div class="sec-lbl">Lokasi</div>
+
+        <!-- location card -->
+        <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="map-box" id="ci-map">
+            <div class="map-grid-h" style="top:33%;"></div>
+            <div class="map-grid-h" style="top:66%;"></div>
+            <div class="map-grid-v" style="left:33%;"></div>
+            <div class="map-grid-v" style="left:66%;"></div>
+            <div class="map-pin" id="ci-pin" style="top:50%;left:46%;"></div>
+            <div class="map-office"></div>
+          </div>
+          <div class="geo-row">
+            <span class="geo-lbl">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+              Jarak ke kantor
+            </span>
+            <span class="geo-val" id="ci-dist" style="color:var(--gray4);">Mendeteksi...</span>
+          </div>
+          <div class="geo-row">
+            <span class="geo-lbl">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              Koordinat
+            </span>
+            <span style="font-size:11px;color:var(--gray4);" id="ci-coord">--</span>
+          </div>
+        </div>
+
+        <div id="ci-warn" class="alert a-warn">
+          <svg class="alert-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Selfie wajib sebelum clock in.
+        </div>
+
+        <button class="btn btn-dis" id="ci-btn" onclick="doClockIn()" disabled>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          → Konfirmasi Clock In
+        </button>
+        <p class="note" id="ci-note">Tombol aktif setelah selfie diambil</p>
+
+      </div>
+      <div class="nav">
+        <button class="ntab on" onclick="goPage('landing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home
+        </button>
+        <button class="ntab" onclick="goPage('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         PAGE: SEDANG ABSEN (Durasi)
+    ════════════════════════════════ -->
+    <div class="page" id="page-active">
+      <div class="hdr">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <h1>Absensi</h1>
+            <div class="hdr-sub" id="a-date">Kamis, 21 Mei 2026</div>
+          </div>
+          <button onclick="doLogout()" style="border:none;background:none;cursor:pointer;color:var(--gray4);padding:4px;margin-top:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="body">
+
+        <!-- employee card -->
+        <div class="card">
+          <div class="emp-row">
+            <div class="avatar av-green" id="a-av">BU</div>
+            <div style="flex:1;">
+              <div class="emp-name" id="a-name">Bahrul Ulum</div>
+              <div class="emp-role" id="a-lbl">Clock in pukul 08.00</div>
+            </div>
+            <span class="badge b-in">
+              <span class="bdot"></span>
+              In
+            </span>
+          </div>
+        </div>
+
+        <!-- duration big -->
+        <div class="card">
+          <div class="dur-wrap">
+            <div class="dur-lbl">Durasi Kerja</div>
+            <div class="dur-big" id="a-dur">9j 0m</div>
+            <div class="dur-since" id="a-since">Sejak pukul 08.00</div>
+          </div>
+        </div>
+
+        <!-- in / out split -->
+        <div class="card split-card">
+          <div class="split-col">
+            <div class="split-lbl">Clock In</div>
+            <div class="split-val" id="a-int">08.00</div>
+          </div>
+          <div class="split-sep"></div>
+          <div class="split-col">
+            <div class="split-lbl">Clock Out</div>
+            <div class="split-val" id="a-outt" style="color:var(--gray4);">--</div>
+          </div>
+        </div>
+
+        <!-- clock out button -->
+        <button class="btn btn-red" onclick="doClockOut()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          [→ Clock Out
+        </button>
+
+      </div>
+      <div class="nav">
+        <button class="ntab on" onclick="goPage('landing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home
+        </button>
+        <button class="ntab" onclick="goPage('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         PAGE: HISTORY (Riwayat)
+    ════════════════════════════════ -->
+    <div class="page" id="page-history">
+      <div class="hdr">
+        <h1>History</h1>
+        <div class="hdr-sub" id="h-month">Mei 2026</div>
+      </div>
+      <div class="body">
+
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-key">Total Hari</div>
+            <div class="stat-val" id="h-days">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-key">Total Jam</div>
+            <div class="stat-val" id="h-hrs">0j 0m</div>
+          </div>
+        </div>
+
+        <div class="sec-lbl">Riwayat Absensi</div>
+        <div id="h-log">
+          <div style="text-align:center;padding:20px 0;color:var(--gray4);font-size:13px;">
+            Belum ada data absensi.
+          </div>
+        </div>
+
+      </div>
+      <div class="nav">
+        <button class="ntab" onclick="goPage('landing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home
+        </button>
+        <button class="ntab on">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /screen -->
+</div><!-- /device -->
+
+<script>
+// ── State ──────────────────────────────────────────────────
+var APP = {
+  clocked: false, inTime: null, inCoords: null,
+  selfie: false, recs: [],
+  oLat: -6.2088, oLng: 106.8456,
+  uLat: null, uLng: null, user: null
+};
+var USERS = [
+  {email:'bahrul@perusahaan.com', pass:'123456', name:'Bahrul Ulum', initials:'BU', role:'IT Staff'},
+  {email:'demo@demo.com',         pass:'demo',   name:'Demo User',   initials:'DU', role:'Product Design'},
+];
+
+// ── Helpers ────────────────────────────────────────────────
+function fmtDot(d){
+  var h=d.getHours().toString().padStart(2,'0');
+  var m=d.getMinutes().toString().padStart(2,'0');
+  return h+'.'+m;
+}
+function fmtColon(d){
+  var h=d.getHours().toString().padStart(2,'0');
+  var m=d.getMinutes().toString().padStart(2,'0');
+  return h+':'+m;
+}
+function fmtDate(d){
+  return d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function fmtDateShort(d){
+  return d.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+}
+function fmtDur(ms){
+  var h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+  return h+'j '+m+'m';
+}
+function haversine(la1,ln1,la2,ln2){
+  var R=6371000,
+      dLa=(la2-la1)*Math.PI/180,
+      dLn=(ln2-ln1)*Math.PI/180,
+      a=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLn/2)*Math.sin(dLn/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function distStr(m){ return m<1000 ? Math.round(m)+'m' : (m/1000).toFixed(2)+'km'; }
+
+// ── Navigation ─────────────────────────────────────────────
+function goPage(p){
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('page-'+p).classList.add('active');
+  var isLogin = p==='login';
+  document.getElementById('main-sbar').style.display = isLogin ? 'none' : 'flex';
+  if(p==='history') refreshHistory();
+  if(p==='active')  refreshActive();
+}
+
+// ── Clock tick ─────────────────────────────────────────────
+function tick(){
+  var now=new Date(), t=fmtDot(now), t2=fmtColon(now);
+  document.getElementById('sbar-time').textContent = t2;
+  document.getElementById('t-login').textContent   = t2;
+  var lc=document.getElementById('l-clock');    if(lc) lc.textContent = t;
+  var ld=document.getElementById('l-date');     if(ld) ld.textContent = fmtDate(now);
+  var ad=document.getElementById('a-date');     if(ad) ad.textContent = fmtDate(now);
+  var hm=document.getElementById('h-month');    if(hm) hm.textContent = now.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  if(APP.clocked && APP.inTime){
+    var dur = fmtDur(now - APP.inTime);
+    document.getElementById('a-dur').textContent = dur;
+    var sess = document.getElementById('l-sess');
+    if(sess){ sess.style.display='block'; sess.textContent='Sesi: '+dur; }
+  }
+}
+
+// ── Geolocation ────────────────────────────────────────────
+function updateGeo(lat, lng){
+  APP.uLat=lat; APP.uLng=lng;
+  var d = haversine(lat,lng,APP.oLat,APP.oLng);
+  var near = d<=500;
+  var ds = distStr(d)+' dari kantor';
+  var el=document.getElementById('ci-dist');
+  if(el){ el.textContent=ds; el.className='geo-val '+(near?'near':'far'); }
+  var ce=document.getElementById('ci-coord');
+  if(ce) ce.textContent = lat.toFixed(4)+'°, '+lng.toFixed(4)+'°';
+  var px=Math.max(10,Math.min(88,50+(lng-APP.oLng)*700));
+  var py=Math.max(10,Math.min(88,50-(lat-APP.oLat)*700));
+  var pin=document.getElementById('ci-pin');
+  if(pin){ pin.style.left=px+'%'; pin.style.top=py+'%'; }
+}
+
+// ── Auth ───────────────────────────────────────────────────
+function togglePass(){
+  var inp=document.getElementById('inp-pass');
+  var show=inp.type==='password';
+  inp.type=show?'text':'password';
+  document.getElementById('eye-ico').innerHTML=show
+    ?'<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    :'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
+
+function forgotPass(){ alert('Link reset password dikirim ke email kamu.'); }
+
+function doLogin(){
+  var email = document.getElementById('inp-email').value.trim().toLowerCase();
+  var pass  = document.getElementById('inp-pass').value;
+  var err   = document.getElementById('login-err');
+  if(!email||!pass){
+    err.style.display='flex';
+    document.getElementById('err-msg').textContent='Email dan password wajib diisi.';
+    return;
+  }
+  var u = USERS.find(function(u){ return u.email===email && u.pass===pass; });
+  if(u){
+    err.style.display='none';
+    APP.user=u; applyUser(); goPage('landing');
+  } else {
+    err.style.display='flex';
+    document.getElementById('err-msg').textContent='Email/password salah. Coba: demo@demo.com / demo';
+  }
+}
+
+function doSSO(){
+  APP.user=USERS[0]; applyUser();
+  document.getElementById('login-err').style.display='none';
+  goPage('landing');
+}
+
+function applyUser(){
+  var u=APP.user;
+  ['l-av','a-av'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=u.initials; });
+  var ln=document.getElementById('l-name'); if(ln) ln.textContent=u.name;
+  var an=document.getElementById('a-name'); if(an) an.textContent=u.name;
+  var lr=document.getElementById('l-role'); if(lr) lr.textContent=u.role;
+}
+
+function doLogout(){
+  if(!confirm('Yakin mau keluar?')) return;
+  APP.clocked=false; APP.inTime=null; APP.recs=[];
+  document.getElementById('inp-email').value='';
+  document.getElementById('inp-pass').value='';
+  goPage('login');
+}
+
+// ── Selfie ─────────────────────────────────────────────────
+function onSelfie(e){
+  var f=e.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    APP.selfie=true;
+    var img=document.getElementById('ci-img');
+    img.src=ev.target.result; img.style.display='block';
+    document.getElementById('ci-camsvg').style.display='none';
+    document.getElementById('ci-lbl').textContent='Tap untuk ganti foto';
+    document.getElementById('ci-req').style.display='none';
+    document.getElementById('ci-ok').style.display='flex';
+    document.getElementById('ci-warn').style.display='none';
+    document.getElementById('ci-step').textContent='Langkah 2 – Konfirmasi';
+    document.getElementById('ci-note').style.display='none';
+    var btn=document.getElementById('ci-btn');
+    btn.className='btn btn-blue'; btn.disabled=false;
+  };
+  r.readAsDataURL(f);
+}
+
+// ── Clock In / Out ─────────────────────────────────────────
+function landBtn(){
+  if(APP.clocked){ goPage('active'); }
+  else { resetCI(); goPage('clockin'); }
+}
+
+function resetCI(){
+  APP.selfie=false;
+  var img=document.getElementById('ci-img'); img.style.display='none'; img.src='';
+  document.getElementById('ci-camsvg').style.display='';
+  document.getElementById('ci-lbl').textContent='Tap untuk membuka kamera';
+  document.getElementById('ci-req').style.display='';
+  document.getElementById('ci-ok').style.display='none';
+  document.getElementById('ci-warn').style.display='flex';
+  document.getElementById('ci-step').textContent='Langkah 1 – Ambil Selfie';
+  document.getElementById('ci-note').style.display='';
+  var btn=document.getElementById('ci-btn'); btn.className='btn btn-dis'; btn.disabled=true;
+  document.getElementById('ci-file').value='';
+}
+
+function doClockIn(){
+  if(!APP.selfie) return;
+  APP.clocked=true; APP.inTime=new Date();
+  APP.inCoords={ lat:APP.uLat, lng:APP.uLng };
+  syncLanding(); refreshActive(); goPage('active');
+}
+
+function doClockOut(){
+  var out=new Date(), dur=out-APP.inTime;
+  var distVal = APP.inCoords&&APP.inCoords.lat
+    ? distStr(haversine(APP.inCoords.lat,APP.inCoords.lng,APP.oLat,APP.oLng))
+    : '--';
+  APP.recs.unshift({
+    date: fmtDateShort(APP.inTime),
+    inT:  fmtDot(APP.inTime),
+    outT: fmtDot(out),
+    inT2: fmtColon(APP.inTime),
+    outT2:fmtColon(out),
+    dur:  dur, dist: distVal
+  });
+  APP.clocked=false; APP.inTime=null;
+  syncLanding(); goPage('history');
+}
+
+// ── Sync landing state ─────────────────────────────────────
+function syncLanding(){
+  var badge=document.getElementById('l-badge');
+  var stxt =document.getElementById('l-stxt');
+  var btn  =document.getElementById('l-btn');
+  var btxt =document.getElementById('l-btxt');
+  var sess =document.getElementById('l-sess');
+  var today=document.getElementById('l-today');
+
+  if(APP.clocked){
+    badge.className='badge b-in';
+    badge.querySelector('.bdot').style.background='var(--green)';
+    stxt.textContent='In';
+    btn.className='btn btn-red';
+    document.getElementById('l-ico').outerHTML='<svg id="l-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
+    btxt.textContent='→ Clock Out';
+    if(sess) sess.style.display='block';
+    if(today) today.innerHTML='<div style="display:flex;align-items:center;gap:10px;padding:6px 0;"><div style="width:34px;height:34px;border-radius:50%;background:var(--green-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-dk)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div style="font-size:13px;font-weight:600;color:var(--ink);">Sedang absen</div><div style="font-size:11px;color:var(--gray4);">Clock in pukul '+fmtDot(APP.inTime)+'</div></div></div>';
+  } else {
+    badge.className='badge b-out';
+    badge.querySelector('.bdot').style.background='var(--red)';
+    stxt.textContent='Out';
+    btn.className='btn btn-green';
+    btxt.textContent='→ Clock In';
+    if(sess) sess.style.display='none';
+    refreshTodaySnippet();
+  }
+}
+
+function refreshTodaySnippet(){
+  var el=document.getElementById('l-today'); if(!el) return;
+  if(!APP.recs.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--gray4);text-align:center;padding:6px 0;">Belum ada absensi hari ini</div>';
+    return;
+  }
+  var r=APP.recs[0];
+  el.innerHTML='<div style="display:flex;align-items:center;gap:10px;padding:6px 0;"><div style="width:34px;height:34px;border-radius:50%;background:var(--red-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div><div><div style="font-size:13px;font-weight:600;color:var(--ink);">Selesai pukul '+r.outT+'</div><div style="font-size:11px;color:var(--gray4);">Durasi '+fmtDur(r.dur)+'</div></div></div>';
+}
+
+function refreshActive(){
+  if(!APP.inTime) return;
+  var t=fmtDot(APP.inTime);
+  document.getElementById('a-int').textContent  = t;
+  document.getElementById('a-lbl').textContent  = 'Clock in pukul '+t;
+  document.getElementById('a-since').textContent= 'Sejak pukul '+t;
+  document.getElementById('a-dur').textContent  = fmtDur(new Date()-APP.inTime);
+}
+
+function refreshHistory(){
+  var log=document.getElementById('h-log');
+  if(!APP.recs.length){
+    log.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--gray4);font-size:13px;">Belum ada data absensi.</div>';
+    document.getElementById('h-days').textContent='0';
+    document.getElementById('h-hrs').textContent ='0j 0m';
+    return;
+  }
+  var total=APP.recs.reduce(function(a,r){ return a+r.dur; },0);
+  document.getElementById('h-days').textContent=APP.recs.length;
+  document.getElementById('h-hrs').textContent =fmtDur(total);
+  var html='';
+  APP.recs.forEach(function(r){
+    html+='<div class="hitem">'
+      +'<div style="flex:1;">'
+      +  '<div class="hitem-date">'+r.date+'</div>'
+      +  '<div class="hitem-sub">Masuk '+r.inT2+' · Keluar '+r.outT2+'</div>'
+      +  '<div class="hitem-sub">'+r.dist+' dari kantor</div>'
+      +'</div>'
+      +'<div class="hitem-rt">'
+      +  '<span class="dpill">'+fmtDur(r.dur)+'</span><br/>'
+      +  '<span class="spill">selfie</span>'
+      +'</div>'
+      +'</div>';
+  });
+  log.innerHTML=html;
+}
+
+// ── Init ───────────────────────────────────────────────────
+document.getElementById('inp-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+document.getElementById('inp-email').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('inp-pass').focus(); });
+
+goPage('login');
+tick();
+setInterval(tick, 10000);
+
+if(navigator.geolocation){
+  navigator.geolocation.watchPosition(
+    function(p){ updateGeo(p.coords.latitude, p.coords.longitude); },
+    function(){},
+    {enableHighAccuracy:true, maximumAge:10000, timeout:15000}
+  );
+}
+</script>
+</body>
+</html>
